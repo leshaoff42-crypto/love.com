@@ -1,0 +1,401 @@
+<!DOCTYPE html><html lang="ru"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Сюрприз для Юли • 8 Марта</title>
+<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;600;700&amp;family=Playfair+Display:ital,wght@0,400;0,600;1,400&amp;family=Lato:wght@300;400&amp;display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{min-height:100vh;background:linear-gradient(135deg, #fce8ed 0%, #f9d0dc 50%, #fff0f4 100%);overflow:hidden;font-family:'Playfair Display',Georgia,serif;}
+/* ── GAME ── */
+#mg-area{position:relative;width:100%;height:100vh;overflow:hidden;}
+#mg-header{position:absolute;top:22px;left:50%;transform:translateX(-50%);text-align:center;z-index:10;white-space:nowrap;}
+#mg-header h2{font-size:clamp(20px,4vw,30px);color:#5a1e34;margin-bottom:6px;}
+#mg-header .sub{font-size:8px;color:#8b4060;}
+#mg-counter{position:absolute;top:98px;left:50%;transform:translateX(-50%);background:#e8526a;color:#fff;
+  padding:7px 22px;border-radius:30px;font-size:20px;font-weight:700;letter-spacing:2px;z-index:10;
+  box-shadow:0 4px 14px rgba(0,0,0,.8);}
+.mg-heart{position:absolute;cursor:pointer;user-select:none;line-height:1;
+animation:mgFall linear forwards;transition:transform .25s;
+will-change:transform;transform:translateZ(0);}
+.mg-heart:active{transform:scale(1.3);}
+#mg-progress{position:absolute;bottom:24px;left:50%;transform:translateX(-50%);
+  width:220px;height:8px;background:rgba(255,255,255,.4);border-radius:4px;overflow:hidden;z-index:10;}
+#mg-bar{height:100%;background:#e8526a;border-radius:4px;width:0;transition:width .3s;}
+/* ── REVEAL ── */
+#reveal{display:none;position:fixed;inset:0;z-index:200;background:linear-gradient(135deg, #fce8ed 0%, #f9d0dc 50%, #fff0f4 100%);overflow-y:auto;
+  flex-direction:column;align-items:center;justify-content:flex-start;padding:28px 20px 40px;text-align:center;}
+#rv-flowers{margin-bottom:2px;}
+.rv-rule{width:110px;height:1px;background:linear-gradient(90deg,transparent,#e8526a,transparent);margin:12px auto;}
+.rv-date{color:#e8526a;font-size:11px;letter-spacing:5px;font-weight:700;text-transform:uppercase;margin-bottom:12px;}
+#rv-h1{font-family:'Dancing Script',cursive;font-size:clamp(26px,6vw,50px);color:#5a1e34;line-height:1.8;margin-bottom:14px;opacity:0;}
+#rv-h1 span{color:#e8526a;}
+.rv-card{background:rgba(255,255,255,.68);backdrop-filter:blur(8px);border:1px solid #f4a0b5;
+  border-radius:20px;padding:26px 30px;max-width:520px;width:100%;
+  box-shadow:0 8px 40px rgba(0,0,0,.08);margin:0 auto;opacity:0;}
+.rv-card blockquote{font-size:clamp(14px,2.8vw,19px);line-height:1.85;font-style:italic;
+  color:#5a1e34;border-left:3px solid #e8526a;padding-left:16px;margin-bottom:8px;text-align:left;}
+.from-line{font-size:14px;color:#8b4060;margin-top:8px;text-align:right;}
+.rv-win{font-size:22px;margin-top:16px;opacity:0;}
+/* ── ALBUM ── */
+.rv-album{max-width:550px;margin-top:28px;opacity:0;}
+.al-title{font-size:18px;font-weight:600;color:#5a1e34;margin-bottom:14px;font-family:'Playfair Display',Georgia,serif;}
+.al-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:28px;}
+.al-photo{aspect-ratio:1;border-radius:12px;background:linear-gradient(135deg,#e8526a20,#f4a0b530);
+  border:2px solid #f4a0b5;overflow:hidden;cursor:pointer;transition:transform .3s,box-shadow .3s;
+  box-shadow:0 4px 12px rgba(0,0,0,.1);}
+.al-photo:hover{transform:scale(1.05);box-shadow:0 8px 20px rgba(0,0,0,.8);}
+.al-photo-emoji{font-size:3rem;display:flex;align-items:center;justify-content:center;height:100%;}
+/* ── ANIMS ── */
+@keyframes mgFall{from{transform:translateY(-60px);opacity:1;}to{transform:translateY(110vh);opacity:.2;}}to{top:108%;opacity:.2;}}
+@keyframes mgPop{0%{transform:scale(1);}50%{transform:scale(2.4);opacity:1;}100%{transform:scale(0);opacity:0;}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideUp{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
+@keyframes slideDown{from{opacity:0;transform:translateY(-28px)}to{opacity:1;transform:translateY(0)}}
+@keyframes zoomIn{from{opacity:0;scale:.8}to{opacity:1;scale:1}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+
+/* mobile fixes */
+.al-photo img{width:100%;height:100%;object-fit:cover;display:block}
+.secret-btn{margin-top:18px;background:#e8526a;color:#fff;border:none;padding:12px 20px;border-radius:25px;font-size:16px;cursor:pointer}
+.secret-text{margin-top:12px;font-size:18px;color:#5a1e34;display:none}
+
+/* petals */
+.petal{position:fixed;top:-20px;pointer-events:none;z-index:9999;animation:petalFall linear forwards}
+@keyframes petalFall{0%{transform:translateY(-20px) rotate(0)}100%{transform:translateY(110vh) rotate(360deg)}}
+
+/* photo viewer */
+#photo-viewer{position:fixed;inset:0;background:rgba(0,0,0,.9);display:none;align-items:center;justify-content:center;z-index:999}
+#photo-viewer img{max-width:92%;max-height:92%;border-radius:12px}
+
+
+#viewer-caption{
+  color:#fff;
+  margin-top:14px;
+  font-size:18px;
+  text-align:center;
+  max-width:90%;
+  font-style:italic;
+}
+
+
+/* polaroid album effect */
+.al-photo{
+  background:#fff;
+  padding:8px 8px 26px 8px;
+  border-radius:4px;
+  box-shadow:0 8px 18px rgba(0,0,0,.18);
+}
+.al-grid .al-photo:nth-child(odd){transform:rotate(-2deg)}
+.al-grid .al-photo:nth-child(even){transform:rotate(2deg)}
+.al-photo img{border-radius:2px}
+
+/* caption smooth appearance */
+#viewer-caption{
+  color:#fff;
+  margin-top:14px;
+  font-size:18px;
+  text-align:center;
+  max-width:90%;
+  font-style:italic;
+  opacity:0;
+}
+#viewer-caption.show{
+  animation:fadeCaption .6s ease forwards;
+}
+@keyframes fadeCaption{
+  from{opacity:0; transform:translateY(10px)}
+  to{opacity:1; transform:translateY(0)}
+}
+
+</style>
+</head><body>
+<!-- GAME PHASE -->
+<div id="mg-area">
+  <div id="mg-header">
+    <h2>Поймай 8 сердечек 💝</h2>
+    <div class="sub">для Юли</div>
+  </div>
+  <div id="mg-counter">0 / 8</div>
+  <div id="mg-progress"><div id="mg-bar"></div></div>
+<div class="mg-heart" style="left: 66.961795%; animation-duration: 3.820299s; font-size: 41.618236px;">🌸</div><div class="mg-heart" style="left: 78.642537%; animation-duration: 3.149549s; font-size: 28.231631px;">🌷</div><div class="mg-heart" style="left: 74.456345%; animation-duration: 2.574688s; font-size: 26.32725px;">💕</div><div class="mg-heart" style="left: 8.985731%; animation-duration: 4.31208s; font-size: 36.48838px;">💗</div><div class="mg-heart" style="left: 36.813688%; animation-duration: 3.278492s; font-size: 32.300109px;">🌸</div></div>
+<!-- REVEAL PHASE -->
+<div id="reveal">
+  <div id="rv-flowers">
+    <svg id="gsap-fl" viewBox="0 0 260 160" width="260" height="160" overflow="visible" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <radialGradient id="gfpg1" cx="40%" cy="25%" r="70%">
+        <stop offset="0%" stop-color="#fff0f4"></stop>
+        <stop offset="55%" stop-color="#f4a0b5"></stop>
+        <stop offset="100%" stop-color="#e8526a"></stop>
+      </radialGradient>
+      <radialGradient id="gfpg2" cx="40%" cy="25%" r="70%">
+        <stop offset="0%" stop-color="#fff8f0"></stop><stop offset="55%" stop-color="#f9c8a4"></stop><stop offset="100%" stop-color="#e07040"></stop>
+      </radialGradient>
+      <radialGradient id="gfyc" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stop-color="#fff8c0"></stop><stop offset="60%" stop-color="#f9e44f"></stop><stop offset="100%" stop-color="#d4a010"></stop>
+      </radialGradient>
+      <filter id="gfglow"><feGaussianBlur stdDeviation="2.5" result="b"></feGaussianBlur><feMerge><feMergeNode in="b"></feMergeNode><feMergeNode in="SourceGraphic"></feMergeNode></feMerge></filter>
+    </defs>
+    <path class="gf-stem" d="M130,88 C122,130 120,110 130,88" stroke="#5a9a3a" stroke-width="4" fill="none" stroke-linecap="round" opacity="0"></path>
+    <path class="gf-stem" d="M80,88 C78,138 76,118 80,100" stroke="#5a9a3a" stroke-width="3" fill="none" stroke-linecap="round" opacity="0"></path>
+    <path class="gf-stem" d="M180,88 C182,136 184,116 180,98" stroke="#5a9a3a" stroke-width="3" fill="none" stroke-linecap="round" opacity="0"></path>
+    <ellipse class="gf-leaf" cx="112" cy="120" rx="20" ry="8" fill="#4a8a2a" transform="rotate(-40,112,120)" opacity="0"></ellipse>
+    <ellipse class="gf-leaf" cx="148" cy="114" rx="20" ry="8" fill="#4a8a2a" transform="rotate(35,148,114)" opacity="0"></ellipse>
+    <g id="gf1" transform="translate(130,88)">
+      <ellipse class="gf1p" cx="0" cy="-24" rx="10" ry="24" fill="url(#gfpg1)" opacity="0.9" transform="rotate(0)" transform-origin="0 0"></ellipse>
+      <ellipse class="gf1p" cx="0" cy="-24" rx="10" ry="24" fill="url(#gfpg1)" opacity="0.9" transform="rotate(45)" transform-origin="0 0"></ellipse>
+      <ellipse class="gf1p" cx="0" cy="-24" rx="10" ry="24" fill="url(#gfpg1)" opacity="0.9" transform="rotate(90)" transform-origin="0 0"></ellipse>
+      <ellipse class="gf1p" cx="0" cy="-24" rx="10" ry="24" fill="url(#gfpg1)" opacity="0.9" transform="rotate(135)" transform-origin="0 0"></ellipse>
+      <ellipse class="gf1p" cx="0" cy="-24" rx="10" ry="24" fill="url(#gfpg1)" opacity="0.85" transform="rotate(180)" transform-origin="0 0"></ellipse>
+      <ellipse class="gf1p" cx="0" cy="-24" rx="10" ry="24" fill="url(#gfpg1)" opacity="0.85" transform="rotate(225)" transform-origin="0 0"></ellipse>
+      <ellipse class="gf1p" cx="0" cy="-24" rx="10" ry="24" fill="url(#gfpg1)" opacity="0.85" transform="rotate(270)" transform-origin="0 0"></ellipse>
+      <ellipse class="gf1p" cx="0" cy="-24" rx="10" ry="24" fill="url(#gfpg1)" opacity="0.85" transform="rotate(38)" transform-origin="0 0"></ellipse>
+      <ellipse class="gf1pi" cx="0" cy="-8" rx="6" ry="8" fill="url(#gfpg1)" opacity="0.95" transform="rotate(22.5)" transform-origin="0 0" filter="url(#gfglow)"></ellipse>
+      <ellipse class="gf1pi" cx="0" cy="-8" rx="6" ry="8" fill="url(#gfpg1)" opacity="0.95" transform="rotate(112.5)" transform-origin="0 0" filter="url(#gfglow)"></ellipse>
+      <ellipse class="gf1pi" cx="0" cy="-8" rx="6" ry="8" fill="url(#gfpg1)" opacity="0.95" transform="rotate(202.5)" transform-origin="0 0" filter="url(#gfglow)"></ellipse>
+      <ellipse class="gf1pi" cx="0" cy="-8" rx="6" ry="8" fill="url(#gfpg1)" opacity="0.95" transform="rotate(292.5)" transform-origin="0 0" filter="url(#gfglow)"></ellipse>
+      <circle id="gf1c" cx="0" cy="0" r="9" fill="url(#gfyc)" filter="url(#gfglow)" opacity="0"></circle>
+    </g>
+    <g id="gf2" transform="translate(80,100)">
+      <ellipse class="gf2p" cx="0" cy="-18" rx="8" ry="18" fill="url(#gfpg2)" opacity="0.88" transform="rotate(0)" transform-origin="0 0"></ellipse>
+      <ellipse class="gf2p" cx="0" cy="-18" rx="8" ry="18" fill="url(#gfpg2)" opacity="0.88" transform="rotate(60)" transform-origin="0 0"></ellipse>
+      <ellipse class="gf2p" cx="0" cy="-18" rx="8" ry="18" fill="url(#gfpg2)" opacity="0.88" transform="rotate(120)" transform-origin="0 0"></ellipse>
+      <ellipse class="gf2p" cx="0" cy="-18" rx="8" ry="18" fill="url(#gfpg2)" opacity="0.82" transform="rotate(180)" transform-origin="0 0"></ellipse>
+      <ellipse class="gf2p" cx="0" cy="-18" rx="8" ry="18" fill="url(#gfpg2)" opacity="0.82" transform="rotate(240)" transform-origin="0 0"></ellipse>
+      <ellipse class="gf2p" cx="0" cy="-18" rx="8" ry="18" fill="url(#gfpg2)" opacity="0.82" transform="rotate(300)" transform-origin="0 0"></ellipse>
+      <circle id="gf2c" cx="0" cy="0" r="7" fill="url(#gfyc)" filter="url(#gfglow)" opacity="0"></circle>
+    </g>
+    <g id="gf3" transform="translate(180,98)">
+      <ellipse class="gf3p" cx="0" cy="-18" rx="8" ry="18" fill="url(#gfpg1)" opacity="0.88" transform="rotate(0)" transform-origin="0 0"></ellipse>
+      <ellipse class="gf3p" cx="0" cy="-18" rx="8" ry="18" fill="url(#gfpg1)" opacity="0.88" transform="rotate(60)" transform-origin="0 0"></ellipse>
+      <ellipse class="gf3p" cx="0" cy="-18" rx="8" ry="18" fill="url(#gfpg1)" opacity="0.88" transform="rotate(120)" transform-origin="0 0"></ellipse>
+      <ellipse class="gf3p" cx="0" cy="-18" rx="8" ry="18" fill="url(#gfpg1)" opacity="0.82" transform="rotate(180)" transform-origin="0 0"></ellipse>
+      <ellipse class="gf3p" cx="0" cy="-18" rx="8" ry="18" fill="url(#gfpg1)" opacity="0.82" transform="rotate(240)" transform-origin="0 0"></ellipse>
+      <ellipse class="gf3p" cx="0" cy="-18" rx="8" ry="18" fill="url(#gfpg1)" opacity="0.82" transform="rotate(300)" transform-origin="0 0"></ellipse>
+      <circle id="gf3c" cx="0" cy="0" r="7" fill="url(#gfyc)" filter="url(#gfglow)" opacity="0"></circle>
+    </g>
+    </svg>
+  </div>
+  <div class="rv-rule"></div>
+  <div class="rv-date">8 марта</div>
+  <h1 id="rv-h1">С Праздником,<br><span>Юля!</span></h1>
+  <div class="rv-card">
+    <blockquote> Котенок, поздравляю тебя с 8 Марта! Говорят, что это праздник весны, но для меня весна наступает каждый раз, когда ты улыбаешься. Спасибо тебе за твою нежность, за то, как ты умеешь слушать, и за ту невероятную атмосферу, которую ты создаешь рядом с собой. Я хочу, чтобы ты знала: я всегда рядом и готов исполнять твои мечты не только сегодня, но и каждый день. Ты — моё вдохновение! Прости, что не могу прислать тебе цветочков и подарок , но надеюсь это немного скрасит создавшуюся ситуацию. Я тебя очень сильно люблю и скучаю💗💋🫂! 🌸</blockquote>
+<button class="secret-btn" id="complimentBtn">Получить комплимент 💖</button>
+<div class="secret-text" id="complimentText"></div>
+
+    <p class="from-line">— Лёша</p>
+  </div>
+  <div class="rv-win">🎉 Ты поймала все сердечки! 🎉</div>
+  
+<div class="rv-album">
+<div class="al-title">📸 Мои любимые моменты с тобой</div>
+<div class="al-grid">
+<div class="al-photo"><img src="photo1.jpg" data-caption="Наша крутая фотка💗"></div>
+<div class="al-photo"><img src="photo2.jpg" data-caption="Мы в крутых платьях🫂"></div>
+<div class="al-photo"><img src="photo3.jpg" data-caption="Наш прекрасный день в парке💋"></div>
+<div class="al-photo"><img src="photo4.jpg" data-caption="Тусуемся на лавке с каким то мужиком😀"></div>
+<div class="al-photo"><img src="photo5.jpg" data-caption="Котенок делает мне супер прическу🥹"></div>
+<div class="al-photo"><img src="photo6.jpg" data-caption="Отдыхаем с любимкой в масочках😊"></div>
+</div>
+
+<!-- GIFT VIDEO SECTION -->
+<div id="gift-section" style="margin-top:40px;text-align:center">
+  <div id="gift-box" style="font-size:64px;cursor:pointer;transition:transform .4s">
+    🎁
+    <div style="font-size:16px;margin-top:10px;color:#5a1e34">Открой подарок</div>
+  </div>
+
+  <div id="gift-video" style="display:none;margin-top:20px">
+    <video id="surpriseVideo" controls playsinline style="width:100%;max-width:420px;border-radius:14px;box-shadow:0 8px 25px rgba(0,0,0,.25)">
+      <source src="7610443829283556615.mp4" type="video/mp4">
+    </video>
+  </div>
+</div>
+
+</div>
+
+</div>
+      
+      
+      
+      
+      
+    </div>
+  </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script>
+(function(){
+  /* ── GAME ── */
+  var caught=0,MAX=8,active=true;
+  var EMOJIS=['💗','💖','💝','💕','🌸','🌷','💐','💞'];
+  var area=document.getElementById('mg-area');
+  function createHeart(){
+    if(!active)return;
+    var h=document.createElement('div');
+    h.className='mg-heart';
+    h.textContent=EMOJIS[Math.floor(Math.random()*EMOJIS.length)];
+    h.style.left=(5+Math.random()*88)+'%';
+    h.style.animationDuration=(2+Math.random()*2.5)+'s';
+    h.style.fontSize=(24+Math.random()*22)+'px';
+    area.appendChild(h);
+    function tap(e){
+      if(!active)return;
+      caught++;
+      document.getElementById('mg-counter').textContent=caught+' / '+MAX;
+      document.getElementById('mg-bar').style.width=(caught/MAX*100)+'%';
+      // фиксируем текущую позицию сердечка
+      var rect = h.getBoundingClientRect();
+      var parentRect = area.getBoundingClientRect();
+      h.style.top = (rect.top - parentRect.top) + "px";
+
+      // останавливаем падение
+      h.style.animation = "none";
+      h.offsetHeight;
+
+      // запускаем pop
+      h.style.animation='mgPop .4s ease-out forwards';
+      if(caught>=MAX){active=false;setTimeout(startReveal,500);}
+      setTimeout(function(){if(h.parentNode)h.parentNode.removeChild(h);},400);
+      e.stopPropagation();
+    }
+    h.addEventListener('click',tap);
+    h.addEventListener('touchstart',tap,{passive:false});
+    h.addEventListener('animationend',function(){
+      if(h.style.animation.indexOf('mgPop')===-1&&h.parentNode)h.parentNode.removeChild(h);
+    });
+  }
+  var si=setInterval(function(){if(active)createHeart();else clearInterval(si);},750);
+  for(var i=0;i<4;i++)setTimeout(createHeart,i*130);
+  /* ── GSAP REVEAL ── */
+  function startReveal(){
+    var rev=document.getElementById('reveal');
+    rev.style.display='flex'; startPetals();
+    if(typeof gsap==='undefined'){setTimeout(startReveal,80);return;}
+    gsap.set('.gf1p,.gf1pi,.gf2p,.gf3p',{scale:0,transformOrigin:'0px 0px'});
+    gsap.set('#gf1c,#gf2c,#gf3c',{scale:0,transformOrigin:'50% 50%'});
+    var tl=gsap.timeline();
+    tl.fromTo(rev,{opacity:0,scale:.96},{opacity:1,scale:1,duration:.55,ease:'power2.out'})
+      .to('.gf-stem',{opacity:1,duration:.65,stagger:.18,ease:'power2.out'},.25)
+      .to('.gf-leaf',{opacity:1,duration:.4,stagger:.1},.72)
+      .to('.gf2p',{scale:1,duration:.42,stagger:.06,ease:'back.out(2)'},.85)
+      .to('#gf2c',{scale:1,opacity:1,duration:.3},1.32)
+      .to('.gf3p',{scale:1,duration:.42,stagger:.06,ease:'back.out(2)'},1.0)
+      .to('#gf3c',{scale:1,opacity:1,duration:.3},1.48)
+      .to('.gf1p',{scale:1,duration:.5,stagger:.06,ease:'back.out(2)'},1.2)
+      .to('.gf1pi',{scale:1,duration:.38,stagger:.07,ease:'back.out(2)'},1.7)
+      .to('#gf1c',{scale:1,opacity:1,duration:.35,ease:'elastic.out(1.2,.5)'},2.1)
+      .fromTo('#rv-h1',{opacity:0,y:18},{opacity:1,y:0,duration:.6,ease:'power2.out'},1.45)
+      .fromTo('.rv-card',{opacity:0,y:18},{opacity:1,y:0,duration:.6,ease:'power2.out'},1.75)
+      .fromTo('.rv-win',{opacity:0,scale:.8},{opacity:1,scale:1,duration:.5,ease:'back.out(2)'},2.2)
+      .fromTo('.rv-album',{opacity:0,y:20},{opacity:1,y:0,duration:.6,ease:'power2.out'},2.6);
+    tl.to('#gf1',{rotation:3,duration:3,ease:'sine.inOut',yoyo:true,repeat:-1},2.7);
+    tl.to('#gf2',{rotation:-2.5,duration:2.8,ease:'sine.inOut',yoyo:true,repeat:-1},2.9);
+    tl.to('#gf3',{rotation:2.5,duration:3.2,ease:'sine.inOut',yoyo:true,repeat:-1},2.8);
+  }
+})();
+</script>
+
+<div id="photo-viewer" style="flex-direction:column"><img id="viewer-img"><div id="viewer-caption"></div></div>
+
+
+<script>
+document.addEventListener("DOMContentLoaded", function(){
+
+  const compliments = [
+"Самая милая девочка💗",
+"Невероятно красивая🥰",
+"Мне очень повезло с тобой 🫂",
+"Любимый котеночек 😘",
+"Лучший игрок на личе🎉",
+"Супер талантливая 💖",
+"Обаятельная 💋",
+"Твои объятия - лучшая терапия для меня 🫂",
+"Ты просо идеальная😇",
+"Я влюбляюсь в тебя всё сильнее с каждой секундой ⏳❤️",
+"Ты — моё самое красивое «да» в жизни 💍",
+"Ты — та самая, о ком я всегда мечтал 💭",
+"Ты выглядишь потрясающе в любом образе 👗"
+];
+
+  const btn = document.getElementById("complimentBtn");
+  const text = document.getElementById("complimentText");
+
+  if(btn && text){
+    btn.addEventListener("click", function(){
+
+      if(compliments.length === 0){
+        text.style.display = "block";
+        text.textContent = "Добавь комплименты в коде 😊";
+        return;
+      }
+
+      const random = compliments[Math.floor(Math.random()*compliments.length)];
+
+      text.style.display = "block";
+      text.textContent = random;
+
+    });
+  }
+
+  // photo viewer
+  const photos = document.querySelectorAll(".al-photo img");
+  const viewer = document.getElementById("photo-viewer");
+  const viewerImg = document.getElementById("viewer-img");
+
+  photos.forEach(img=>{
+    img.addEventListener("click",()=>{
+      viewer.style.display="flex";
+      viewerImg.src = img.src; const cap=document.getElementById("viewer-caption"); cap.textContent = img.dataset.caption || ""; cap.classList.remove("show"); void cap.offsetWidth; cap.classList.add("show");
+    });
+  });
+
+  viewer.addEventListener("click",()=>{
+    viewer.style.display="none";
+  });
+
+});
+</script>
+
+
+<script>
+function startPetals(){
+  setInterval(function(){
+    var p=document.createElement("div");
+    p.className="petal";
+    p.textContent="🌸";
+    p.style.left=Math.random()*100+"vw";
+    p.style.fontSize=(14+Math.random()*20)+"px";
+    p.style.animationDuration=(6+Math.random()*6)+"s";
+    document.body.appendChild(p);
+    setTimeout(function(){p.remove();},12000);
+  },350);
+}
+</script>
+
+
+<script>
+document.addEventListener("DOMContentLoaded", function(){
+
+  const box = document.getElementById("gift-box");
+  const videoBlock = document.getElementById("gift-video");
+  const video = document.getElementById("surpriseVideo");
+
+  if(box){
+    box.addEventListener("click", function(){
+
+      box.style.transform="scale(1.2) rotate(-10deg)";
+
+      setTimeout(()=>{
+        box.style.display="none";
+        videoBlock.style.display="block";
+        if(video) video.play();
+      },400);
+
+    });
+  }
+
+});
+</script>
+
+</body></html>
